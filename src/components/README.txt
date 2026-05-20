@@ -1,0 +1,1 @@
+This directory previously contained GravityBombClientWrapper.tsx and GravityBombOverlay.tsx for a removed easter egg. These files are now deleted.
