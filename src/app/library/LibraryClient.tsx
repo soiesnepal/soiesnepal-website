@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 import {
   ExternalLink,
   Search,
@@ -8,6 +9,7 @@ import {
   GraduationCap,
   Layers,
   Sparkles,
+  Timer,
   X,
 } from "lucide-react";
 import {
@@ -60,12 +62,13 @@ function generateParticles(count: number): Particle[] {
 // particles will be generated on the client only to avoid hydration mismatch
 
 function useParticles(count: number) {
-  // generate once per component instance
-  const ref = useRef<Particle[] | null>(null);
-  if (ref.current === null) {
-    ref.current = generateParticles(count);
-  }
-  return ref.current;
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    setParticles(generateParticles(count));
+  }, [count]);
+
+  return particles;
 }
 
 function ParticleIcon({ icon, size }: { icon: Particle["icon"]; size: number }) {
@@ -87,10 +90,12 @@ function TiltCard({
   children,
   className,
   href,
+  disableTilt = false,
 }: {
   children: React.ReactNode;
   className?: string;
   href: string;
+  disableTilt?: boolean;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const x = useMotionValue(0);
@@ -123,20 +128,26 @@ function TiltCard({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformPerspective: 800,
-        transformStyle: "preserve-3d",
-      }}
+      onMouseMove={disableTilt ? undefined : handleMouse}
+      onMouseLeave={disableTilt ? undefined : handleLeave}
+      style={
+        disableTilt
+          ? undefined
+          : {
+              rotateX,
+              rotateY,
+              transformPerspective: 800,
+              transformStyle: "preserve-3d",
+            }
+      }
       className={className}
     >
       {children}
       {/* Glare overlay */}
       <motion.div
-        className="pointer-events-none absolute inset-0 z-20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className={`pointer-events-none absolute inset-0 z-20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+          disableTilt ? "hidden" : ""
+        }`}
         style={{
           background: useTransform(
             [glareX, glareY],
@@ -369,6 +380,7 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
   const [search, setSearch] = useState("");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const reduceMotion = useReducedMotion();
 
   const placeholder = useCyclingPlaceholder(PLACEHOLDER_SUBJECTS);
   const query = (activeChip || search).trim().toLowerCase();
@@ -553,28 +565,30 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
   return (
     <div className="relative min-h-screen bg-white dark:bg-navy-950 overflow-hidden">
       {/* ── Floating particles background ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {useParticles(40).map((p) => (
-          <motion.div
-            key={p.id}
-            className="absolute text-gold-500/30 dark:text-gold-400/20"
-            animate={{
-              y: [0, -60, 20, -40, 0],
-              x: [0, 30, -20, 10, 0],
-              rotate: [0, 90, 180, 270, 360],
-            }}
-            transition={{
-              duration: p.duration,
-              repeat: Infinity,
-              ease: "linear",
-              delay: p.delay,
-            }}
-            style={{ left: `${p.x}%`, top: `${p.y}%`, opacity: p.opacity }}
-          >
-            <ParticleIcon icon={p.icon} size={p.size} />
-          </motion.div>
-        ))}
-      </div>
+      {!reduceMotion && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {useParticles(24).map((p) => (
+            <motion.div
+              key={p.id}
+              className="absolute text-gold-500/30 dark:text-gold-400/20"
+              animate={{
+                y: [0, -40, 10, -30, 0],
+                x: [0, 20, -10, 8, 0],
+                rotate: [0, 90, 180, 270, 360],
+              }}
+              transition={{
+                duration: p.duration,
+                repeat: Infinity,
+                ease: "linear",
+                delay: p.delay,
+              }}
+              style={{ left: `${p.x}%`, top: `${p.y}%`, opacity: p.opacity }}
+            >
+              <ParticleIcon icon={p.icon} size={p.size} />
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       <div className="relative z-10 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -604,6 +618,15 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
               <span className="text-gold-500 font-semibold">{semesters.length} semesters</span>{" "}
               of Industrial Engineering.
             </p>
+            <div className="mt-6 flex items-center justify-center">
+              <Link
+                href="/study-tracker"
+                className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2 text-xs sm:text-sm font-semibold shadow-lg shadow-slate-900/20 hover:bg-slate-800 transition-colors"
+              >
+                <Timer size={16} />
+                Study Tracker
+              </Link>
+            </div>
           </motion.div>
 
           {/* ── Stats strip ── */}
@@ -836,6 +859,7 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
                     ) : (
                       <TiltCard
                         href={sem.driveLink}
+                        disableTilt={!!reduceMotion}
                         className="group relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-gold-500/20 transition-shadow duration-500 cursor-pointer"
                       >
                         {/* Background image with gradient overlay */}
