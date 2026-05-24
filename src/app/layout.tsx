@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   title: "SOIES Nepal - Society of Industrial Engineering Students",
   description:
     "Empowering Industrial Engineering for Nepal's Future. Society of Industrial Engineering Students (SOIES) Nepal.",
+  manifest: "/manifest.json",
   keywords: [
     "SOIES",
     "Nepal",

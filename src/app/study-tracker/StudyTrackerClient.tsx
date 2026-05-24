@@ -257,8 +257,8 @@ export default function StudyTrackerClient() {
   const [isMinimized, setIsMinimized] = useState(false);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [alerts, setAlerts] = useState([]);
-  const [now, setNow] = useState(null);
+  const [alerts, setAlerts] = useState<{id: string, message: string}[]>([]);
+  const [now, setNow] = useState<Date | null>(null);
 
   const focusTrackerRef = useRef({
     hydrationAcc: 0,
@@ -298,7 +298,7 @@ export default function StudyTrackerClient() {
     if (lad && lad !== todayStr) {
       const todayDate = new Date(todayStr);
       const ladDate = new Date(lad);
-      const diffDays = Math.floor((todayDate - ladDate) / (1000 * 60 * 60 * 24));
+      const diffDays = Math.floor((todayDate.getTime() - ladDate.getTime()) / (1000 * 60 * 60 * 24));
 
       if (diffDays > 1) {
         sc = 0;
@@ -361,7 +361,7 @@ export default function StudyTrackerClient() {
     return () => clearTimeout(saveId);
   }, [studiedSeconds, hydrationCount, streakCount, lastActiveDate, settings, streakIncrementedToday, dataLoaded]);
 
-  const triggerAlert = useCallback((message) => {
+  const triggerAlert = useCallback((message: string) => {
     const id = Date.now() + Math.random().toString();
     setAlerts((prev) => [...prev, { id, message }]);
     setTimeout(() => {
@@ -369,7 +369,7 @@ export default function StudyTrackerClient() {
     }, 10000);
   }, []);
 
-  const dismissAlert = (id) => {
+  const dismissAlert = (id: string) => {
     setAlerts((prev) => prev.filter((a) => a.id !== id));
   };
 
@@ -430,7 +430,7 @@ export default function StudyTrackerClient() {
     }
   }, [sessionRemainingSec, sessionState]);
 
-  const updateSetting = (key, value) => {
+  const updateSetting = (key: string, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -438,7 +438,7 @@ export default function StudyTrackerClient() {
     setHydrationCount((prev) => prev + 1);
   };
 
-  const handleHydrationCheckComplete = (drank) => {
+  const handleHydrationCheckComplete = (drank: boolean) => {
     if (drank) handleAddWater();
     setSessionState("break-timer");
     setSessionRemainingSec(settings.sessionMinutes >= 50 ? 15 * 60 : 5 * 60);
