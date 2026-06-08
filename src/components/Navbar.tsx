@@ -12,6 +12,7 @@ const utilityLinks = [
   { href: "/alumni", label: "Alumni" },
   { href: "/teams", label: "Teams" },
   { href: "/journal", label: "Academic Papers" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/magazine", label: "Magazine" },
   { href: "/notices", label: "Notices" },
   { href: "/members", label: "Members" },

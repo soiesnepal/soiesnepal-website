@@ -3,12 +3,12 @@
 
 // Framer Motion fully removed for performance
 import Image from "next/image";
-import { Download, FileText, BookOpen, Pen, Sparkles, Clock, Search, X } from "lucide-react";
+import { Download, FileText, BookOpen, Pen, Sparkles, Clock, Search, X, FolderOpen } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface Journal {
   _id: string;
-  category: "groupwork" | "research" | "ojt" | "seminar" | "fyp";
+  category: "ojt" | "seminar" | "fyp" | "minor" | "major" | "entrepreneurship" | "groupwork" | "industrial" | "others" | "research";
   title: string;
   batch: string;
   semester?: string;
@@ -22,11 +22,16 @@ interface Journal {
 }
 
 const categoryLabels: Record<Journal["category"], string> = {
-  groupwork: "Groupwork and Presentation",
-  research: "Research",
-  ojt: "OJT",
-  seminar: "Seminar Paper",
-  fyp: "Final Year Projects",
+  ojt: "OJT Papers",
+  seminar: "Seminar Papers",
+  fyp: "Final Year Project Papers",
+  minor: "Minor Projects",
+  major: "Major Projects",
+  entrepreneurship: "Entrepreneurship",
+  groupwork: "Group Work and Presentation",
+  industrial: "Industrial Estate Research Program",
+  others: "Others",
+  research: "Research", // Kept for existing content compatibility
 };
 
 function getFuzzyScore(term: string, value: string) {
@@ -52,11 +57,23 @@ function getFuzzyScore(term: string, value: string) {
 
 export default function JournalClient({ journals }: { journals: Journal[] }) {
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const categories = useMemo(() => {
+    return Object.entries(categoryLabels)
+      .filter(([key]) => key !== "research") // Hide research unless we want to show it, let's just omit it natively from empty states
+      .map(([key, label]) => ({ key, label }));
+  }, []);
 
   const filteredJournals = useMemo(() => {
-    if (!query.trim()) return journals;
+    let filtered = journals;
+    if (selectedCategory) {
+      filtered = filtered.filter(j => j.category === selectedCategory);
+    }
 
-    const scored = journals.map((journal) => {
+    if (!query.trim()) return filtered;
+
+    const scored = filtered.map((journal) => {
       const fields = [
         journal.title,
         categoryLabels[journal.category],
@@ -79,7 +96,7 @@ export default function JournalClient({ journals }: { journals: Journal[] }) {
       .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .map((item) => item.journal);
-  }, [journals, query]);
+  }, [journals, query, selectedCategory]);
 
   const hasJournals = journals.length > 0;
   const hasMatches = filteredJournals.length > 0;
@@ -95,6 +112,34 @@ export default function JournalClient({ journals }: { journals: Journal[] }) {
             Academic <span className="gradient-text">Papers</span>
           </h1>
         </div>
+
+        {categories.length > 0 && (
+          <div className="mb-8 flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium transition-all ${
+                selectedCategory === null
+                  ? "bg-gold-500 text-navy-950 shadow-md shadow-gold-500/20"
+                  : "bg-slate-50 dark:bg-navy-900/50 text-slate-600 dark:text-navy-300 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200 dark:border-navy-700/50"
+              }`}
+            >
+              <FolderOpen size={16} /> All
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
+                className={`px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium transition-all ${
+                  selectedCategory === cat.key
+                    ? "bg-gold-500 text-navy-950 shadow-md shadow-gold-500/20"
+                    : "bg-slate-50 dark:bg-navy-900/50 text-slate-600 dark:text-navy-300 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200 dark:border-navy-700/50"
+                }`}
+              >
+                <FolderOpen size={16} /> {cat.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {hasJournals && (
           <div className="mb-6 flex flex-col sm:flex-row gap-3">

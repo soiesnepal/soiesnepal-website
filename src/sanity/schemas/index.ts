@@ -7,4 +7,7 @@ import { magazine } from "./magazine";
 import { journal } from "./journal";
 import { hero } from "./hero";
 import { generalMembers } from "./generalMembers";
-export const schemaTypes = [notice, alumniBatch, event, team, interns, magazine, journal, hero, generalMembers];
+import { industrialVisit } from "./industrialVisit";
+import { gallery } from "./gallery";
+
+export const schemaTypes = [notice, alumniBatch, event, team, interns, magazine, journal, hero, generalMembers, industrialVisit, gallery];

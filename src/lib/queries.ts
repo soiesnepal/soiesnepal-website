@@ -120,3 +120,10 @@ export const generalMembersQuery = `*[_type == "generalMembers"] | order(batch d
   batch,
   membersList
 }`;
+
+export const galleryQuery = `*[_type == "gallery"] | order(date desc){
+  _id,
+  title,
+  "imageUrl": image.asset->url,
+  date
+}`;
