@@ -1,0 +1,21 @@
+{
+  "name": "SOIES Nepal",
+  "short_name": "SOIES",
+  "description": "Society of Industrial Engineering Students Nepal Web App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/soies.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/soies.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
