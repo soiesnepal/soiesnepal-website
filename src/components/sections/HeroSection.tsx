@@ -42,7 +42,7 @@ export default function HeroSection() {
           </p>
 
           <p className="text-sm sm:text-base text-slate-500 dark:text-navy-300 mb-10 max-w-xl mx-auto">
-            Empowering Industrial Engineering for Nepal&apos;s Future
+            Empowering Industrial Engineering for Nepal&apos;s Future, where juniors can learn with guidance and support from seniors.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -59,14 +59,14 @@ export default function HeroSection() {
               View Events
             </a>
             <a
-              href="https://discord.gg/CaKVvnE9z"
+              href="https://www.facebook.com/soiesnepal"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Join our Discord server"
-              className="px-8 py-3.5 bg-[#5865F2] text-white font-bold rounded-lg shadow-lg hover:bg-[#4752c4] transition-all flex items-center gap-2 justify-center"
+              aria-label="Message Us To Join Discord Channel"
+              className="px-8 py-3.5 bg-[#1877F2] text-white font-bold rounded-lg shadow-lg hover:bg-[#166FE5] transition-all flex items-center gap-2 justify-center"
             >
-              <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="16" fill="#5865F2"/><path d="M24.5 21.167c-1.167.5-2.417.833-3.75 1.083-.333-.5-.667-1.083-.917-1.583 1.75-.25 3.333-.667 4.75-1.25.083.583.083 1.167-.083 1.75zm-13 1.083c-1.333-.25-2.583-.583-3.75-1.083-.167-.583-.167-1.167-.083-1.75 1.417.583 3 .917 4.75 1.25-.25.5-.583 1.083-.917 1.583zm10.083-2.083c-2.083.333-4.25.333-6.333 0-.25-.5-.5-1.083-.667-1.667 2.25.333 4.5.333 6.75 0-.167.584-.417 1.167-.75 1.667zm-8.25-2.25c-2.083-.5-3.917-1.25-5.25-2.167.25-1.167.833-2.25 1.667-3.167 1.25.917 2.833 1.667 4.75 2.167-.25.667-.417 1.334-.417 2.167zm13.334-2.167c.834.917 1.417 2 1.667 3.167-1.333.917-3.167 1.667-5.25 2.167 0-.833-.167-1.5-.417-2.167 1.917-.5 3.5-1.25 4.75-2.167zm-6.667-1.167c-2.25-.333-4.417-.917-6.25-1.75.25-.917.667-1.75 1.25-2.5 1.667.75 3.75 1.25 6 1.5-.083.667-.167 1.334-.167 2.25zm8.25-1.75c.583.75 1 1.583 1.25 2.5-1.833.833-4 1.417-6.25 1.75 0-.916-.083-1.583-.167-2.25 2.25-.25 4.333-.75 6-1.5zm-7.25-1.083c-2.083-.25-4.083-.75-5.75-1.5.5-.833 1.167-1.583 2-2.167 1.5.667 3.25 1.083 5 1.25-.083.5-.167 1.083-.25 1.417zm8.5-1.5c.833.584 1.5 1.334 2 2.167-1.667.75-3.667 1.25-5.75 1.5-.083-.334-.167-.917-.25-1.417 1.75-.167 3.5-.583 5-1.25z" fill="#fff"/></svg>
-              Join Interactive Learning
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.186 8.438 9.939v-7.03H7.898v-2.909h2.54V9.845c0-2.518 1.492-3.91 3.777-3.91 1.094 0 2.238.196 2.238.196v2.475H15.19c-1.243 0-1.63.775-1.63 1.57v1.885h2.773l-.443 2.909H13.56V22c4.78-.753 8.44-4.917 8.44-9.939z" fill="white"/></svg>
+              Message Us To Join Discord Channel
             </a>
           </div>
         </div>

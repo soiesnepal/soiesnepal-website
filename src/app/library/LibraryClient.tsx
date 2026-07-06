@@ -671,22 +671,15 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
               <div className="flex-1 text-left">
                 <h2 className="text-xl font-bold text-navy-900 dark:text-white mb-1">Interactive Learning Environment</h2>
                 <p className="text-navy-700 dark:text-navy-200 text-sm mb-2">
-                  A unique initiative by the 18th Executive Committee, the Interactive Learning Environment is a dedicated Discord channel where seniors actively help juniors with notes, resources, and problem-solving. Whether you’re stuck on a tough concept, need past notes, or want to discuss real-world applications, you’ll find a supportive community ready to help you grow.
+                  This channel is created to help juniors learn better by taking guidance and support from seniors. Message us on our page to join the channel.
                 </p>
-                <ul className="list-disc pl-5 text-navy-600 dark:text-navy-300 text-xs mb-2">
-                  <li>Get help with coursework, assignments, and exam prep</li>
-                  <li>Access curated notes and resources from seniors</li>
-                  <li>Ask questions and get real-time answers</li>
-                  <li>Collaborate on problem-solving and projects</li>
-                  <li>Build connections across batches</li>
-                </ul>
                 <a
-                  href="https://discord.gg/CaKVvnE9z"
+                  href="https://www.facebook.com/soiesnepal"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-2 px-5 py-2.5 bg-[#5865F2] text-white font-semibold rounded-lg shadow hover:bg-[#4752c4] transition-colors"
                 >
-                  Join the Discord Channel
+                  Message Us To Join Discord Channel
                 </a>
               </div>
             </div>
@@ -848,12 +841,12 @@ export default function LibraryClient({ semesters }: { semesters: Semester[] }) 
                         <h3 className="text-lg font-bold text-slate-700 dark:text-white mb-1">{sem.name}</h3>
                         <p className="text-slate-500 dark:text-navy-300 text-sm mb-2">Coming Soon</p>
                         <a
-                          href="https://discord.gg/CaKVvnE9z"
+                          href="https://www.facebook.com/soiesnepal"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-block mt-2 px-4 py-2 bg-[#5865F2] text-white font-semibold rounded-lg shadow hover:bg-[#4752c4] transition-colors text-xs"
                         >
-                          Contribute Resources
+                          Message Us To Join Discord Channel
                         </a>
                       </div>
                     ) : (
