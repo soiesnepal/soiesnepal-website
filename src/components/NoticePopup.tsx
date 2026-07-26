@@ -4,16 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import type { Notice } from "@/constants";
+
+function getNoticeDescriptionText(description?: Notice["description"]) {
+  if (!description?.length) return "";
+
+  return description
+    .map((block) => block.children?.map((child) => child.text || "").join("") || "")
+    .filter(Boolean)
+    .join("\n");
+}
 
 interface NoticePopupProps {
-  notice: {
-    _id: string;
-    title: string;
-    description?: string;
-    imageUrl?: string;
-    pdf?: string;
-    category?: string;
-  } | null;
+  notice: Notice | null;
 }
 
 export default function NoticePopup({ notice }: NoticePopupProps) {
@@ -79,7 +82,7 @@ export default function NoticePopup({ notice }: NoticePopupProps) {
                 </h3>
                 {notice.description && (
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                    {notice.description}
+                    {getNoticeDescriptionText(notice.description)}
                   </p>
                 )}
                 <div className="flex gap-3">

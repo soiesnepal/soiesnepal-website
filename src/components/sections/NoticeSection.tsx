@@ -6,6 +6,15 @@ import { Image as ImageIcon, FileText, ExternalLink } from "lucide-react";
 import { Notice } from "@/constants";
 import Image from "next/image";
 
+function getNoticeDescriptionText(description?: Notice["description"]) {
+  if (!description?.length) return "";
+
+  return description
+    .map((block) => block.children?.map((child) => child.text || "").join("") || "")
+    .filter(Boolean)
+    .join("\n");
+}
+
 interface NoticeSectionProps {
   notices: Notice[];
 }
@@ -73,7 +82,7 @@ export default function NoticeSection({ notices }: NoticeSectionProps) {
                 </h4>
                 {notice.description && (
                     <p className="text-slate-500 dark:text-navy-400 text-sm line-clamp-3 mb-4">
-                    {notice.description}
+                    {getNoticeDescriptionText(notice.description)}
                   </p>
                 )}
 

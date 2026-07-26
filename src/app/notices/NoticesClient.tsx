@@ -6,11 +6,24 @@ import { FileText, Download, Bell } from "lucide-react";
 interface Notice {
   _id: string;
   title: string;
-  description?: string;
+  description?: Array<{
+    _key?: string;
+    _type?: string;
+    children?: Array<{ text?: string }>;
+  }>;
   category?: string;
   showAsPopup?: boolean;
   imageUrl?: string;
   pdf?: string;
+}
+
+function getNoticeDescriptionText(description?: Notice["description"]) {
+  if (!description?.length) return "";
+
+  return description
+    .map((block) => block.children?.map((child) => child.text || "").join("") || "")
+    .filter(Boolean)
+    .join("\n");
 }
 
 const categoryColors: Record<string, string> = {
@@ -79,7 +92,7 @@ export default function NoticesClient({ notices }: { notices: Notice[] }) {
                       </h2>
                       {notice.description && (
                         <p className="text-slate-500 dark:text-navy-400 text-sm mt-2 leading-relaxed">
-                          {notice.description}
+                          {getNoticeDescriptionText(notice.description)}
                         </p>
                       )}
                     </div>

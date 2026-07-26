@@ -1,16 +1,10 @@
 "use client";
 
 import NoticePopup from "./NoticePopup";
+import type { Notice } from "@/constants";
 
 interface NoticePopupWrapperProps {
-  notice: {
-    _id: string;
-    title: string;
-    description?: string;
-    imageUrl?: string;
-    pdf?: string;
-    category?: string;
-  } | null;
+  notice: Notice | null;
 }
 
 export default function NoticePopupWrapper({ notice }: NoticePopupWrapperProps) {
