@@ -745,24 +745,40 @@
         "options": {
           "list": [
             {
-              "title": "Groupwork and Presentation",
-              "value": "groupwork"
-            },
-            {
-              "title": "Research",
-              "value": "research"
-            },
-            {
-              "title": "OJT",
+              "title": "OJT Papers",
               "value": "ojt"
             },
             {
-              "title": "Seminar Paper",
+              "title": "Seminar Papers",
               "value": "seminar"
             },
             {
-              "title": "Final Year Projects",
+              "title": "Final Year Project Papers",
               "value": "fyp"
+            },
+            {
+              "title": "Minor Projects",
+              "value": "minor"
+            },
+            {
+              "title": "Major Projects",
+              "value": "major"
+            },
+            {
+              "title": "Entrepreneurship",
+              "value": "entrepreneurship"
+            },
+            {
+              "title": "Group Work and Presentation",
+              "value": "groupwork"
+            },
+            {
+              "title": "Industrial Estate Research Program",
+              "value": "industrial"
+            },
+            {
+              "title": "Others",
+              "value": "others"
             }
           ]
         },
@@ -773,11 +789,15 @@
               {
                 "flag": "valid",
                 "constraint": [
-                  "groupwork",
-                  "research",
                   "ojt",
                   "seminar",
-                  "fyp"
+                  "fyp",
+                  "minor",
+                  "major",
+                  "entrepreneurship",
+                  "groupwork",
+                  "industrial",
+                  "others"
                 ]
               },
               {
@@ -1146,6 +1166,117 @@
       }
     ],
     "name": "generalMembers",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Visit Title"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "description": "e.g., Spring 2026, 2024-2028",
+        "name": "batch",
+        "type": "string"
+      },
+      {
+        "name": "description",
+        "type": "text"
+      },
+      {
+        "description": "Upload photos from the industrial visit",
+        "of": [
+          {
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "description": "Important for SEO and accessibility.",
+                "name": "alt",
+                "type": "string",
+                "title": "Alternative text"
+              }
+            ],
+            "type": "image"
+          }
+        ],
+        "name": "images",
+        "type": "array",
+        "title": "Photos"
+      }
+    ],
+    "name": "industrialVisit",
+    "type": "document",
+    "title": "Industrial Visits"
+  },
+  {
+    "description": "Images with captions to display in the gallery.",
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Title / Caption"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "image",
+        "type": "image"
+      },
+      {
+        "description": "Date the photo was taken or the event occurred",
+        "name": "date",
+        "type": "date"
+      }
+    ],
+    "name": "gallery",
     "type": "document"
   }
 ]

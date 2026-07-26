@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-05-20T17:38:08.303Z",
+  "createdAt": "2026-06-14T15:40:15.532Z",
   "studioVersion": "5.25.1",
   "version": 3,
   "workspaces": [
@@ -13,7 +13,7 @@
       },
       "name": "default",
       "projectId": "bhcqd45q",
-      "schema": "b2c53f74.create-schema.json",
+      "schema": "f2765a65.create-schema.json",
       "title": "SOIES Nepal",
       "tools": "a1fd46b5.create-tools.json"
     }
