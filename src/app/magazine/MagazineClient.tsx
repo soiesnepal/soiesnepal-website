@@ -49,22 +49,22 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
                     fill
                     sizes="80px"
                     className="object-cover group-hover:scale-105 transition-transform"
-                    priority={i < 4}
+                    priority={i === 0}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <BookOpen size={28} className="text-navy-600" />
+                    <BookOpen size={28} className="text-[#cc4e00]" />
                   </div>
                 )}
               </div>
 
               {/* Info */}
               <div className="flex-1">
-                <h4 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-gold-500 dark:group-hover:text-gold-400 transition-colors">
+                <h4 className="text-[#cc4e00] font-bold text-lg group-hover:text-[#cc4e00] transition-colors">
                   {mag.title}
                 </h4>
                 {mag.description && (
-                  <p className="text-slate-500 dark:text-navy-400 text-sm">{mag.description}</p>
+                  <p className="text-[#cc4e00]/80 text-sm">{mag.description}</p>
                 )}
               </div>
 
@@ -73,7 +73,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
                 <a
                   href={mag.resources}
                   target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-navy-800 hover:bg-gold-500 text-slate-600 dark:text-navy-300 hover:text-navy-950 font-semibold text-sm rounded-lg transition-all shrink-0"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-navy-800 hover:bg-gold-500 text-[#cc4e00] dark:text-[#cc4e00] hover:text-navy-950 font-semibold text-sm rounded-lg transition-all shrink-0"
                 >
                   <Download size={16} /> Download
                 </a>
