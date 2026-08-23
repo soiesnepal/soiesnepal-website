@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { alumniBatchQuery } from "@/lib/queries";
 import AlumniClient from "./AlumniClient";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Industrial Engineering Alumni in Nepal",
+  description:
+    "Discover alumni of SOIES Nepal and their professional journeys in industrial engineering and related fields.",
+  alternates: {
+    canonical: "/alumni",
+  },
+};
 
 const defaultAlumni = [
   { _id: "1", name: "Abiral Raj Baniya Chhetri", currentPosition: "Revenue Management Officer, Yeti Airlines", Batch: 2062 },

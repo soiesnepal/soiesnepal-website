@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { teamQuery, internsQuery } from "@/lib/queries";
 import TeamsClient from "./TeamsClient";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "SOIES Nepal Team",
+  description:
+    "Meet the executive committee, team members, and interns of SOIES Nepal.",
+  alternates: {
+    canonical: "/teams",
+  },
+};
 
 const defaultTeam = [
   { _id: "1", name: "Anish Panthi", position: "President", rank: 1, committee: "18th Executive Committee", photoUrl: null },

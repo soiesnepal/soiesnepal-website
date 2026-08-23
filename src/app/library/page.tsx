@@ -1,4 +1,14 @@
+import type { Metadata } from "next";
 import LibraryClient from "./LibraryClient";
+
+export const metadata: Metadata = {
+  title: "Industrial Engineering Library",
+  description:
+    "Access semester-wise study materials and academic resources for industrial engineering students in Nepal.",
+  alternates: {
+    canonical: "/library",
+  },
+};
 
 // Library uses hardcoded Google Drive links (not from Sanity)
 const semesters = [

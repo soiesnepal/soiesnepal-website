@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { magazineQuery } from "@/lib/queries";
 import MagazineClient from "./MagazineClient";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Industrial Vision Magazine",
+  description:
+    "Explore SOIES Nepal magazine issues and student-written content on industrial engineering in Nepal.",
+  alternates: {
+    canonical: "/magazine",
+  },
+};
 
 const defaultMagazines = Array.from({ length: 10 }, (_, i) => ({
   _id: String(10 - i),

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Hash, Search } from "lucide-react";
+import { Users, Hash, Search, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useMemo } from "react";
 
 interface Member {
@@ -15,35 +15,76 @@ interface BatchGroup {
   members: Member[];
 }
 
+interface MemberRow {
+  _id: string;
+  name: string;
+  rollNumber: number;
+  batch: string;
+}
+
+const ITEMS_PER_PAGE = 18;
+
 function formatRollNumber(batch: string, rollNumber: number) {
+  if (!rollNumber || rollNumber <= 0) return "N/A";
   return `THA${batch}BIE0${String(rollNumber).padStart(2, "0")}`;
 }
 
 export default function MembersClient({ batches }: { batches: BatchGroup[] }) {
   const totalMembers = batches.reduce((sum, b) => sum + (b.members?.length || 0), 0);
   const [search, setSearch] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"name" | "batch" | "roll">("batch");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [page, setPage] = useState(1);
+  const [showAll, setShowAll] = useState(false);
 
   const query = search.trim().toLowerCase();
+  const hasActiveSearch = query.length > 0;
+
+  const flatMembers = useMemo<MemberRow[]>(() => {
+    return batches.flatMap((batch) =>
+      (batch.members || []).map((member, index) => ({
+        _id: `${batch._id}-${index}`,
+        name: member.name,
+        rollNumber: member.rollNumber,
+        batch: batch.batch,
+      }))
+    );
+  }, [batches]);
+
+  const batchOptions = useMemo(() => {
+    return [...new Set(flatMembers.map((m) => m.batch))].sort((a, b) => b.localeCompare(a));
+  }, [flatMembers]);
 
   const filtered = useMemo(() => {
-    if (!query) return batches;
-    return batches
-      .map((batch) => {
-        const matchedMembers = batch.members?.filter(
-          (m) =>
-            m.name.toLowerCase().includes(query) ||
-            formatRollNumber(batch.batch, m.rollNumber).toLowerCase().includes(query) ||
-            batch.batch.includes(query)
-        );
-        if (matchedMembers && matchedMembers.length > 0) {
-          return { ...batch, members: matchedMembers };
-        }
-        return null;
-      })
-      .filter((b): b is BatchGroup => b !== null);
-  }, [batches, query]);
+    let result = flatMembers.filter((member) => {
+      const matchesSearch =
+        !query ||
+        member.name.toLowerCase().includes(query) ||
+        formatRollNumber(member.batch, member.rollNumber).toLowerCase().includes(query) ||
+        member.batch.toLowerCase().includes(query);
+      const matchesBatch = selectedBatch ? member.batch === selectedBatch : true;
+      return matchesSearch && matchesBatch;
+    });
 
-  const filteredTotal = filtered.reduce((sum, b) => sum + (b.members?.length || 0), 0);
+    result = result.sort((a, b) => {
+      let cmp = 0;
+      if (sortBy === "name") cmp = a.name.localeCompare(b.name);
+      if (sortBy === "batch") cmp = a.batch.localeCompare(b.batch);
+      if (sortBy === "roll") cmp = a.rollNumber - b.rollNumber;
+      return sortOrder === "asc" ? cmp : -cmp;
+    });
+
+    return result;
+  }, [flatMembers, query, selectedBatch, sortBy, sortOrder]);
+
+  const shouldShowFullList = showAll || hasActiveSearch;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const displayedMembers = shouldShowFullList ? filtered : paginated;
+
+  const uniqueBatches = batchOptions.length;
 
   return (
     <div className="min-h-screen bg-white dark:bg-navy-950">
@@ -74,7 +115,7 @@ export default function MembersClient({ batches }: { batches: BatchGroup[] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex justify-center gap-6 mt-10"
+            className="grid grid-cols-2 gap-4 mt-10 max-w-xl mx-auto"
           >
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-6 py-4">
               <Users className="w-5 h-5 text-gold-400 mx-auto mb-1" />
@@ -83,50 +124,111 @@ export default function MembersClient({ batches }: { batches: BatchGroup[] }) {
             </div>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-6 py-4">
               <Hash className="w-5 h-5 text-gold-400 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-white">{batches.length}</p>
+              <p className="text-2xl font-bold text-white">{uniqueBatches}</p>
               <p className="text-navy-400 text-xs uppercase tracking-wider">Batches</p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.4 }}
-          className="max-w-xl mx-auto"
-        >
-          <div className="relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-navy-500" />
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-navy-500" />
             <input
               type="text"
               placeholder="Search by name, roll number, or batch..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-navy-500 focus:outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500/50 transition-all text-sm"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-navy-500 focus:outline-none focus:border-gold-500/50 transition-colors"
             />
+          </div>
+
+          <div className="flex gap-3 flex-wrap">
+            <select
+              value={selectedBatch}
+              onChange={(e) => {
+                setSelectedBatch(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-3 bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 rounded-xl text-slate-700 dark:text-navy-200 focus:outline-none focus:border-gold-500/50 transition-colors"
+            >
+              <option value="">All Batches</option>
+              {batchOptions.map((batch) => (
+                <option key={batch} value={batch}>
+                  Batch {batch}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "name" | "batch" | "roll")}
+              className="px-4 py-3 bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 rounded-xl text-slate-700 dark:text-navy-200 focus:outline-none focus:border-gold-500/50 transition-colors"
+            >
+              <option value="batch">Sort by Batch</option>
+              <option value="name">Sort by Name</option>
+              <option value="roll">Sort by Roll</option>
+            </select>
+
+            <button
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              className="px-4 py-3 bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 rounded-xl text-slate-700 dark:text-navy-200 hover:border-gold-500/50 transition-colors"
+              aria-label="Toggle sorting direction"
+            >
+              <ArrowUpDown size={16} />
+            </button>
+
+            <div className="flex bg-slate-50 dark:bg-navy-900/50 border border-slate-200 dark:border-navy-700/50 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`px-3 py-3 text-sm font-medium transition-colors ${viewMode === "cards" ? "bg-gold-500 text-navy-950" : "text-slate-600 dark:text-navy-300"}`}
+              >
+                Cards
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`px-3 py-3 text-sm font-medium transition-colors ${viewMode === "table" ? "bg-gold-500 text-navy-950" : "text-slate-600 dark:text-navy-300"}`}
+              >
+                Table
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <p className="text-slate-500 dark:text-navy-400 text-sm">
+            Showing {displayedMembers.length} of {filtered.length} members
+            {!shouldShowFullList && ` (page ${page} of ${totalPages})`}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAll((prev) => !prev)}
+              className="px-4 py-2 bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-navy-200 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-navy-700 transition-colors"
+            >
+              {showAll ? "Use Paginated View" : "Show All Members"}
+            </button>
             {search && (
               <button
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-navy-300 text-xs font-medium px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-navy-800 transition-colors"
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="px-4 py-2 bg-slate-100 dark:bg-navy-800 text-slate-700 dark:text-navy-200 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-navy-700 transition-colors"
               >
-                Clear
+                Clear Search
               </button>
             )}
           </div>
-          {query && (
-            <p className="text-center text-xs text-slate-400 dark:text-navy-500 mt-2">
-              {filteredTotal} member{filteredTotal !== 1 ? "s" : ""} found across {filtered.length} batch{filtered.length !== 1 ? "es" : ""}
-            </p>
-          )}
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Batch Lists */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-        {filtered.length === 0 ? (
+        {displayedMembers.length === 0 ? (
           <div className="text-center py-20">
             <Users size={48} className="mx-auto text-slate-300 dark:text-navy-600 mb-4" />
             <p className="text-slate-500 dark:text-navy-400 text-lg">
@@ -134,46 +236,107 @@ export default function MembersClient({ batches }: { batches: BatchGroup[] }) {
             </p>
           </div>
         ) : (
-          <div className="space-y-10">
-            {filtered.map((batch, bi) => (
-              <motion.div
-                key={batch._id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: bi * 0.1 }}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                    Batch {batch.batch}
-                  </h2>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gold-500/10 text-gold-600 dark:text-gold-400 border border-gold-500/20">
-                    {batch.members?.length || 0} students
-                  </span>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-navy-900/30 border border-slate-200 dark:border-navy-800/50 rounded-2xl overflow-hidden">
-                  {/* Header */}
-                  <div className="grid grid-cols-[auto_1fr_1fr] gap-4 p-4 bg-slate-100 dark:bg-navy-800/30 border-b border-slate-200 dark:border-navy-700/30">
-                    <span className="text-slate-500 dark:text-navy-400 text-xs font-semibold uppercase tracking-wider w-10">#</span>
-                    <span className="text-slate-500 dark:text-navy-400 text-xs font-semibold uppercase tracking-wider">Name</span>
-                    <span className="text-slate-500 dark:text-navy-400 text-xs font-semibold uppercase tracking-wider">Roll Number</span>
-                  </div>
-                  {batch.members?.map((member, mi) => (
-                    <div
-                      key={mi}
-                      className="grid grid-cols-[auto_1fr_1fr] gap-4 p-4 border-b border-slate-100 dark:border-navy-800/30 last:border-b-0 hover:bg-slate-50 dark:hover:bg-navy-800/20 transition-colors"
-                    >
-                      <span className="text-slate-400 dark:text-navy-500 text-sm w-10">{mi + 1}</span>
-                      <span className="text-slate-900 dark:text-white font-medium text-sm">{member.name}</span>
-                      <span className="text-gold-600 dark:text-gold-400 font-mono text-sm">
-                        {formatRollNumber(batch.batch, member.rollNumber)}
-                      </span>
+          <>
+            {viewMode === "cards" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {displayedMembers.map((member, i) => (
+                  <motion.div
+                    key={member._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.02 }}
+                    className="bg-slate-50 dark:bg-navy-900/30 border border-slate-200 dark:border-navy-800/50 rounded-xl p-5 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/5 transition-all"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gold-500/15 text-gold-600 dark:text-gold-400 flex items-center justify-center font-bold text-lg shrink-0">
+                        {member.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-slate-900 dark:text-white font-semibold truncate">{member.name}</h3>
+                        <p className="text-slate-500 dark:text-navy-400 text-sm mt-1 font-mono truncate">
+                          {formatRollNumber(member.batch, member.rollNumber)}
+                        </p>
+                        <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gold-500/10 text-gold-600 dark:text-gold-400 border border-gold-500/20">
+                          Batch {member.batch}
+                        </span>
+                      </div>
                     </div>
-                  ))}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-slate-50 dark:bg-navy-900/30 border border-slate-200 dark:border-navy-800/50 rounded-2xl overflow-hidden"
+              >
+                <div className="grid grid-cols-[2fr_2fr_1fr] gap-4 p-4 bg-slate-100 dark:bg-navy-800/30 border-b border-slate-200 dark:border-navy-700/30">
+                  <span className="text-slate-500 dark:text-navy-400 text-sm font-semibold uppercase tracking-wider">Name</span>
+                  <span className="text-slate-500 dark:text-navy-400 text-sm font-semibold uppercase tracking-wider">Roll Number</span>
+                  <span className="text-slate-500 dark:text-navy-400 text-sm font-semibold uppercase tracking-wider text-right">Batch</span>
                 </div>
+                {displayedMembers.map((member, i) => (
+                  <motion.div
+                    key={member._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.015 }}
+                    className="grid grid-cols-[2fr_2fr_1fr] gap-4 p-4 border-b border-slate-100 dark:border-navy-800/30 hover:bg-slate-50 dark:hover:bg-navy-800/20 transition-colors"
+                  >
+                    <span className="text-slate-900 dark:text-white font-medium">{member.name}</span>
+                    <span className="text-slate-600 dark:text-navy-300 font-mono">{formatRollNumber(member.batch, member.rollNumber)}</span>
+                    <span className="text-gold-500 dark:text-gold-400 font-semibold text-right">{member.batch}</span>
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
+            )}
+          </>
+        )}
+
+        {!shouldShowFullList && totalPages > 1 && (
+          <div className="flex items-center justify-between mt-8">
+            <p className="text-slate-500 dark:text-navy-400 text-sm">Page {page} of {totalPages}</p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-slate-100 dark:bg-navy-800 hover:bg-slate-200 dark:hover:bg-navy-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                <ChevronLeft size={16} className="inline mr-1" /> Prev
+              </button>
+
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) pageNum = i + 1;
+                else if (page <= 3) pageNum = i + 1;
+                else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else pageNum = page - 2 + i;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === pageNum ? "bg-gold-500 text-navy-950" : "bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-navy-300 hover:bg-slate-200 dark:hover:bg-navy-700"}`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-slate-100 dark:bg-navy-800 hover:bg-slate-200 dark:hover:bg-navy-700 text-slate-900 dark:text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                Next <ChevronRight size={16} className="inline ml-1" />
+              </button>
+            </div>
           </div>
+        )}
+
+        {hasActiveSearch && (
+          <p className="text-center text-xs text-slate-400 dark:text-navy-500 mt-5">
+            Showing all search results. Clear search to return to paginated view.
+          </p>
         )}
       </div>
     </div>

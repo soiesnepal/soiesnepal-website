@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { generalMembersQuery } from "@/lib/queries";
 import MembersClient from "./MembersClient";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "General Members",
+  description:
+    "Browse SOIES Nepal general members across batches of industrial engineering students.",
+  alternates: {
+    canonical: "/members",
+  },
+};
 
 async function getMembers() {
   try {

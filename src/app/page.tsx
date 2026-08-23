@@ -1,4 +1,5 @@
 // ...existing code...
+import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import HowWeWorkSection from "@/components/sections/HowWeWorkSection";
@@ -11,6 +12,15 @@ import { eventsQuery, latestNoticeQuery, teamQuery } from "@/lib/queries";
 // Consider triggering on-demand revalidation via Sanity webhooks
 // for truly immediate updates (e.g. urgent notice). Otherwise 60s is fine.
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Industrial Engineering in Nepal",
+  description:
+    "SOIES Nepal is a leading student platform for industrial engineering in Nepal. Discover events, journals, notices, gallery, and resources for engineering students.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 const defaultTeam = [
   { _id: "1", name: "Anish Panthi", position: "President", rank: 1, committee: "18th Executive Committee", photoUrl: null },
