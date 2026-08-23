@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Trophy, BookOpen, Clock, Sparkles } from "lucide-react";
+import { Trophy, BookOpen, Clock, Sparkles, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Event {
   _id: string;
@@ -15,6 +15,13 @@ interface Event {
   winnerName?: string;
   tutorName?: string;
   images?: string[];
+}
+
+interface EventLightboxState {
+  title: string;
+  date: string;
+  images: string[];
+  index: number;
 }
 
 const placeholderEvents: Event[] = [
@@ -93,7 +100,49 @@ function formatDate(dateStr: string) {
 export default function EventsSection({ events = [], showAll }: { events?: Event[]; showAll?: boolean }) {
   const [activeTab, setActiveTab] = useState<"completed" | "upcoming">("completed");
   const [visibleCount, setVisibleCount] = useState(5); // Show 5 events initially
+  const [lightbox, setLightbox] = useState<EventLightboxState | null>(null);
   useEffect(() => { setVisibleCount(5); }, [activeTab]);
+  useEffect(() => {
+    if (!lightbox) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLightbox(null);
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        setLightbox((prev) => {
+          if (!prev) return prev;
+          const length = prev.images.length;
+          return {
+            ...prev,
+            index: (prev.index - 1 + length) % length,
+          };
+        });
+      }
+
+      if (event.key === "ArrowRight") {
+        setLightbox((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            index: (prev.index + 1) % prev.images.length,
+          };
+        });
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [lightbox]);
+
   const allEvents = events.length > 0 ? events : placeholderEvents;
   const completedEvents = allEvents.filter((e) => e.status !== "upcoming");
   const upcomingEvents = allEvents.filter((e) => e.status === "upcoming").sort(
@@ -102,6 +151,7 @@ export default function EventsSection({ events = [], showAll }: { events?: Event
   const currentEvents = activeTab === "completed" ? completedEvents : upcomingEvents;
   const displayEvents = currentEvents.slice(0, visibleCount);
   const canLoadMore = Boolean(showAll) && visibleCount < currentEvents.length;
+  const selectedImage = lightbox ? lightbox.images[lightbox.index] : null;
 
 
   return (
@@ -243,7 +293,20 @@ export default function EventsSection({ events = [], showAll }: { events?: Event
                       {hasImages && (
                         <div className="grid grid-cols-2 gap-0.5 bg-slate-200 dark:bg-navy-800">
                           {event.images!.slice(0, 4).map((img, idx) => (
-                            <div key={idx} className="aspect-[4/3] overflow-hidden relative">
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() =>
+                                setLightbox({
+                                  title: event.title,
+                                  date: date.full,
+                                  images: event.images || [],
+                                  index: idx,
+                                })
+                              }
+                              aria-label={`View full image ${idx + 1} from ${event.title}`}
+                              className="aspect-4/3 overflow-hidden relative text-left"
+                            >
                               <Image
                                 src={img}
                                 alt={`Event: ${event.title} - Image ${idx + 1}`}
@@ -252,7 +315,7 @@ export default function EventsSection({ events = [], showAll }: { events?: Event
                                 loading="lazy"
                                 quality={70}
                               />
-                            </div>
+                            </button>
                           ))}
                         </div>
                       )}
@@ -345,6 +408,83 @@ export default function EventsSection({ events = [], showAll }: { events?: Event
         </div>
         {/* visibleCount resets on tab change via useEffect */}
       </div>
+
+      {lightbox && selectedImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Expanded view for ${lightbox.title}`}
+        >
+          <button
+            type="button"
+            aria-label="Close image viewer"
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+          >
+            <X size={18} />
+          </button>
+
+          {lightbox.images.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setLightbox((prev) => {
+                    if (!prev) return prev;
+                    const length = prev.images.length;
+                    return {
+                      ...prev,
+                      index: (prev.index - 1 + length) % length,
+                    };
+                  });
+                }}
+                className="absolute left-3 sm:left-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setLightbox((prev) => {
+                    if (!prev) return prev;
+                    return {
+                      ...prev,
+                      index: (prev.index + 1) % prev.images.length,
+                    };
+                  });
+                }}
+                className="absolute right-3 sm:right-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </>
+          )}
+
+          <div
+            className="relative w-full max-w-6xl max-h-[90vh]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={selectedImage}
+              alt={`${lightbox.title} - expanded view`}
+              width={1800}
+              height={1200}
+              className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
+              priority
+            />
+            <div className="mt-4 text-center text-white">
+              <h3 className="text-lg sm:text-xl font-semibold">{lightbox.title}</h3>
+              <p className="text-sm text-white/80 mt-1">{lightbox.date}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Camera, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Camera, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 interface GalleryImage {
   _id: string;
@@ -13,6 +13,7 @@ interface GalleryImage {
 
 export default function GalleryClient({ images }: { images: GalleryImage[] }) {
   const [query, setQuery] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filteredImages = useMemo(() => {
     if (!query.trim()) return images;
@@ -25,6 +26,43 @@ export default function GalleryClient({ images }: { images: GalleryImage[] }) {
 
   const hasImages = images.length > 0;
   const hasMatches = filteredImages.length > 0;
+
+  const selectedImage = selectedIndex !== null ? filteredImages[selectedIndex] : null;
+
+  const closeLightbox = () => setSelectedIndex(null);
+
+  const showPrevious = () => {
+    if (selectedIndex === null || filteredImages.length === 0) return;
+    setSelectedIndex((selectedIndex - 1 + filteredImages.length) % filteredImages.length);
+  };
+
+  const showNext = () => {
+    if (selectedIndex === null || filteredImages.length === 0) return;
+    setSelectedIndex((selectedIndex + 1) % filteredImages.length);
+  };
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeLightbox();
+      } else if (event.key === "ArrowLeft") {
+        showPrevious();
+      } else if (event.key === "ArrowRight") {
+        showNext();
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedIndex]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-navy-950 py-12">
@@ -80,12 +118,17 @@ export default function GalleryClient({ images }: { images: GalleryImage[] }) {
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-            {filteredImages.map((image) => (
+            {filteredImages.map((image, index) => (
               <div
                 key={image._id}
                 className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-slate-100 dark:bg-navy-800 border border-slate-200 dark:border-navy-700/50"
               >
-                <div className="relative w-full overflow-hidden">
+                <button
+                  type="button"
+                  aria-label={`View full image: ${image.title}`}
+                  onClick={() => setSelectedIndex(index)}
+                  className="relative w-full overflow-hidden text-left"
+                >
                   <Image
                     src={image.imageUrl}
                     alt={image.title}
@@ -107,12 +150,84 @@ export default function GalleryClient({ images }: { images: GalleryImage[] }) {
                       </p>
                     )}
                   </div>
-                </div>
+                </button>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={closeLightbox}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Expanded view for ${selectedImage.title}`}
+        >
+          <button
+            type="button"
+            aria-label="Close image viewer"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+          >
+            <X size={18} />
+          </button>
+
+          {filteredImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  showPrevious();
+                }}
+                className="absolute left-3 sm:left-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  showNext();
+                }}
+                className="absolute right-3 sm:right-6 z-10 h-10 w-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </>
+          )}
+
+          <div
+            className="relative w-full max-w-6xl max-h-[90vh]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={selectedImage.imageUrl}
+              alt={selectedImage.title}
+              width={1800}
+              height={1200}
+              className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
+              priority
+            />
+            <div className="mt-4 text-center text-white">
+              <h3 className="text-lg sm:text-xl font-semibold">{selectedImage.title}</h3>
+              {selectedImage.date && (
+                <p className="text-sm text-white/80 mt-1">
+                  {new Date(selectedImage.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
