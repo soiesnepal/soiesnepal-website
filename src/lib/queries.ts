@@ -62,6 +62,59 @@ export const teamQuery = `*[_type == "team"] | order(rank asc){
   "photoUrl": photo.asset->url
 }`;
 
+export const previousCommitteesQuery = `*[_type == "previousCommittee"] | order(tenureNumber desc){
+  _id,
+  title,
+  tenureNumber,
+  years,
+  description,
+  "teamMembers": teamMembers[]{
+    name,
+    role,
+    linkedin,
+    socials,
+    bio,
+    "photoUrl": photo.asset->url
+  },
+  "committeePhotos": committeePhotos[]{
+    caption,
+    "imageUrl": image.asset->url
+  }
+}`;
+
+export const previousCommitteeByTenureQuery = (tenureNumber: number | string) => `*[_type == "previousCommittee" && tenureNumber == ${Number(tenureNumber)}][0]{
+  _id,
+  title,
+  tenureNumber,
+  years,
+  description,
+  "teamMembers": teamMembers[]{
+    name,
+    role,
+    linkedin,
+    socials,
+    bio,
+    "photoUrl": photo.asset->url
+  },
+  "committeePhotos": committeePhotos[]{
+    caption,
+    "imageUrl": image.asset->url
+  }
+}`;
+
+export const eventsByTenureQuery = (tenureNumber: number | string) => `*[_type == "event" && tenureNumber == ${Number(tenureNumber)}] | order(eventDate desc){
+  _id,
+  title,
+  eventDate,
+  description,
+  category,
+  status,
+  winnerName,
+  tutorName,
+  tenureNumber,
+  "images": images[].asset->url
+}`;
+
 export const internsQuery = `*[_type == "interns"]{
   _id,
   batchTitle,

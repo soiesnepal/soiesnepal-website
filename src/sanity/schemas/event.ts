@@ -61,6 +61,13 @@ export const event = defineType({
       validation: (Rule) => Rule.max(4),
     }),
     defineField({
+      name: "tenureNumber",
+      title: "Related Committee Tenure Number",
+      type: "number",
+      description: "Optional. Use this to associate the event with a previous committee archive term.",
+      validation: (Rule) => Rule.min(1),
+    }),
+    defineField({
       name: "slug",
       title: "Slug",
       type: "slug",

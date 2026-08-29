@@ -9,5 +9,6 @@ import { hero } from "./hero";
 import { generalMembers } from "./generalMembers";
 import { industrialVisit } from "./industrialVisit";
 import { gallery } from "./gallery";
+import { previousCommittee } from "./previousCommittee";
 
-export const schemaTypes = [notice, alumniBatch, event, team, interns, magazine, journal, hero, generalMembers, industrialVisit, gallery];
+export const schemaTypes = [notice, alumniBatch, event, team, interns, magazine, journal, hero, generalMembers, industrialVisit, gallery, previousCommittee];
