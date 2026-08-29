@@ -23,7 +23,6 @@ const mainLinks = [
   { href: "/#home", label: "Home" },
   { href: "/library", label: "Library" },
   { href: "/events", label: "Events" },
-  { href: "/previous-committees", label: "Previous Committees" },
 ];
 
 export default function Navbar() {

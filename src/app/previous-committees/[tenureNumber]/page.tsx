@@ -3,12 +3,15 @@ import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity";
 import { previousCommitteeByTenureQuery, eventsByTenureQuery } from "@/lib/queries";
 import { PreviousCommitteeDetail } from "@/components/PreviousCommitteeDetail";
+import { mockPreviousCommittees, mockCommitteeEvents } from "@/lib/mockPreviousCommittees";
 
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ tenureNumber: string }> }): Promise<Metadata> {
   const { tenureNumber } = await params;
-  const committee = await client.fetch(previousCommitteeByTenureQuery(tenureNumber)).catch(() => null);
+  const committee = await client.fetch(previousCommitteeByTenureQuery(tenureNumber)).catch(() =>
+    mockPreviousCommittees.find((item) => item.tenureNumber === Number(tenureNumber)) || null
+  );
 
   if (!committee) {
     return {
@@ -28,13 +31,15 @@ export default async function PreviousCommitteeDetailPage({
   params: Promise<{ tenureNumber: string }>;
 }) {
   const { tenureNumber } = await params;
-  const committee = await client.fetch(previousCommitteeByTenureQuery(tenureNumber)).catch(() => null);
+  const committee = await client.fetch(previousCommitteeByTenureQuery(tenureNumber)).catch(() =>
+    mockPreviousCommittees.find((item) => item.tenureNumber === Number(tenureNumber)) || null
+  );
 
   if (!committee) {
     notFound();
   }
 
-  const events = await client.fetch(eventsByTenureQuery(tenureNumber)).catch(() => []);
+  const events = await client.fetch(eventsByTenureQuery(tenureNumber)).catch(() => mockCommitteeEvents[Number(tenureNumber)] || []);
 
   return <PreviousCommitteeDetail committee={committee} events={events} />;
 }

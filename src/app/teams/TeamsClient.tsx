@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, Shield, X } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface TeamMember {
   _id: string;
@@ -470,6 +471,26 @@ export default function TeamsClient({ team, interns }: { team: TeamMember[], int
             </div>
           </motion.div>
         )}
+
+        <div className="mt-16 border-t border-slate-200 dark:border-navy-800 pt-10">
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold-600 dark:text-gold-400">
+              Archive
+            </p>
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+              Explore Previous Committees
+            </h3>
+            <p className="max-w-xl text-sm sm:text-base text-slate-600 dark:text-navy-300">
+              Browse the leadership stories, milestones, and gallery moments from past executive terms.
+            </p>
+            <Link
+              href="/previous-committees"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-gold-500 to-gold-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-gold-500/20 transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              View Previous Committees
+            </Link>
+          </div>
+        </div>
 
         {/* Profile popup */}
         <AnimatePresence>

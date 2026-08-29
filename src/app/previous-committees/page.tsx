@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import { previousCommitteesQuery } from "@/lib/queries";
 import { PreviousCommitteesClient } from "@/components/PreviousCommitteesClient";
+import { mockPreviousCommittees } from "@/lib/mockPreviousCommittees";
 
 export const revalidate = 60;
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PreviousCommitteesPage() {
-  const committees = await client.fetch(previousCommitteesQuery).catch(() => []);
+  const committees = await client.fetch(previousCommitteesQuery).catch(() => mockPreviousCommittees);
 
   return <PreviousCommitteesClient committees={committees} />;
 }
